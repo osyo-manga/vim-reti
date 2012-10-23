@@ -167,15 +167,65 @@ function! s:test_map()
 endfunction
 
 
-" call s:test_eval()
-" call s:test_execute()
-" call s:test_script()
-" call s:test_operator()
-" call s:test_compose()
-" call s:test_function()
-" call s:test_lambda()
-" call s:test_map()
-" call s:test_Apply()
+function! s:test_max()
+	Assert reti#max(1, 2) == 2
+	Assert reti#max(2, 2) == 2
+	Assert reti#max(-2, 2) == 2
+endfunction
+
+
+function! s:test_min()
+	Assert reti#min(1, 2) == 1
+	Assert reti#min(2, 2) == 2
+	Assert reti#min(-2, 2) == -2
+endfunction
+
+
+function! s:test_foldl()
+	Assert reti#foldl(_("/"), 64, [4, 2, 4]) == 2.0
+	Assert reti#foldl(_("/"), 3, []) == 3.0
+	Assert reti#foldl(_("reti#max"), 5, [1, 2, 3, 4, 5, 6]) == 6
+	Assert reti#foldl(_("2 * a:1 + a:2"), 4, [1, 2, 3]) == 43
+	Assert reti#foldl("/", 64, [4, 2, 4]) == 2.0
+	Assert reti#foldl("/", 3, []) == 3.0
+	Assert reti#foldl("reti#max", 5, [1, 2, 3, 4, 5, 6]) == 6
+	Assert reti#foldl("2 * a:1 + a:2", 4, [1, 2, 3]) == 43
+
+endfunction
+
+
+function! s:test_foldl1()
+	Assert reti#foldl1(_("+"), [1, 2, 3, 4]) == 10
+	Assert reti#foldl1(_("/"), [64, 4, 2, 8]) == 1.0
+	Assert reti#foldl1(_("/"), []) == 0
+endfunction
+
+
+function! s:test_fold()
+	Assert reti#fold(_("/"), 64, [4, 2, 4]) == 2.0
+	Assert reti#fold(_("/"), 3, []) == 3.0
+	Assert reti#fold(_("reti#max"), 5, [1, 2, 3, 4, 5, 6]) == 6
+	Assert reti#fold(_("2 * a:1 + a:2"), 4, [1, 2, 3]) == 43
+endfunction
+
+
+function! s:test_foldr()
+	Assert reti#foldr(_("+"), 5, [1, 2, 3, 4]) == 15
+	Assert reti#foldr(_("/"), 2, [8, 12, 24, 4]) == 8.0
+	Assert reti#foldr(_("&&"), 1, [1 > 2, 3 > 2, 5 == 5]) == 0
+	Assert reti#foldr(_("reti#max"), 18, [3, 6, 12, 4, 55, 11]) == 55
+	Assert reti#foldr(_("reti#max"), 111, [3, 6, 12, 4, 55, 11]) == 111
+	Assert reti#foldr(_("(a:1 + a:2) / 2"), 54, [12, 4, 10, 6]) == 12.0
+endfunction
+
+
+function! s:test_foldr1()
+	Assert reti#foldr1("+", [1, 2, 3, 4]) == 10
+	Assert reti#foldr1("/", [8, 12, 24, 4]) == 4.0
+	Assert reti#foldr1("(a:1 + a:2) / 2", [12, 4, 10, 6]) == 9.0
+	Assert reti#foldr1("0", []) == 0
+endfunction
+
 
 
 function! g:test_lambda_all()
@@ -186,10 +236,17 @@ function! g:test_lambda_all()
 	call s:test_compose()
 	call s:test_function()
 	call s:test_lambda()
-" 	call s:test_map()
 " 	call s:test_Apply()
+	call s:test_max()
+	call s:test_min()
+	call s:test_foldl()
+	call s:test_fold()
+	call s:test_foldr()
+	call s:test_foldl1()
+	call s:test_foldr1()
+	call s:test_map()
 endfunction
-call g:test_lambda_all()
+" call g:test_lambda_all()
 
 
 

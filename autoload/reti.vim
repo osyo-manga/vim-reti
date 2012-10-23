@@ -140,5 +140,88 @@ function! reti#curry(func)
 endfunction
 
 
+
+function! reti#max(a, b)
+	return a:a > a:b ? a:a : a:b
+endfunction
+
+
+function! reti#min(a, b)
+	return a:a > a:b ? a:b : a:a
+endfunction
+
+
+
+
+function! reti#foldl(func, value, seq)
+	let Func = reti#lambda(a:func)
+	let result = a:value
+	for n in a:seq
+		let result = Func(result, n)
+	endfor
+	return result
+endfunction
+
+
+
+function! reti#fold(...)
+	return call("reti#foldl", a:000)
+endfunction
+
+
+
+function! reti#foldr(func, value, seq)
+	let Func = reti#lambda(a:func)
+	let result = a:value
+	for n in reverse(a:seq)
+		let result = Func(n, result)
+	endfor
+	return result
+endfunction
+
+
+function! s:default_constructor(type)
+	return a:type == type(0)   ? 0
+\		 : a:type == type("")  ? ""
+\		 : a:type == type([])  ? []
+\		 : a:type == type({})  ? {}
+\		 : a:type == type(0.0) ? 0.0
+\		 : -1
+endfunction
+
+function! s:test_default_constructor()
+	Assert s:default_constructor(type(12)) == 0
+	Assert s:default_constructor(type("homu")) == ""
+	Assert s:default_constructor(type(range(3))) == []
+	Assert s:default_constructor(type(range(3)[0])) == 0
+	Assert s:default_constructor(type({"homu" : 1})) == {}
+	Assert s:default_constructor(type(function("s:test_default_constructor"))) == -1
+endfunction
+
+
+function! reti#foldl1(func, seq)
+	return reti#foldl(a:func, get(a:seq, 0), a:seq[1:])
+endfunction
+
+
+function! reti#foldr1(func, seq)
+	return reti#foldr(a:func, get(a:seq, -1), a:seq[0:-2])
+endfunction
+
+
+function! reti#map(f, seq)
+	let F = reti#lambda(a:f)
+	return reti#fold(reti#lambda("add(a:1, F(a:2))", l:), [], a:seq)
+" 	let result = []
+" 	for n in a:seq
+" 		call add(result, a:f(n))
+" 	endfor
+" 	return result
+endfunction
+
+
+
+
+
 let cpo = s:save_cpo
 unlet s:save_cpo
