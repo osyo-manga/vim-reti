@@ -89,19 +89,19 @@ function! s:test_function()
 	let Plus = _("+")
 	Assert Plus(1, 2) == 3
 
-	let regex = '^[a-zA-Z0-9#_:<>]\+$'
-	Assert "aaaa" =~ regex
-	Assert "aaa(" !~ regex
-	Assert "(" !~ regex
-	Assert "(aa" !~ regex
-	Assert "aa11" =~ regex
-	Assert "11" =~ regex
-	Assert "_11" =~ regex
-	Assert "aa_11" =~ regex
-	Assert "aa_" =~ regex
-	Assert "#_" =~ regex
-	Assert "reti#sort" =~ regex
-	Assert "<SNR>11_sort" =~ regex
+" 	let regex = '^[a-zA-Z0-9#_:<>]\+$'
+" 	Assert "aaaa" =~ regex
+" 	Assert "aaa(" !~ regex
+" 	Assert "(" !~ regex
+" 	Assert "(aa" !~ regex
+" 	Assert "aa11" =~ regex
+" 	Assert "11" =~ regex
+" 	Assert "_11" =~ regex
+" 	Assert "aa_11" =~ regex
+" 	Assert "aa_" =~ regex
+" 	Assert "#_" =~ regex
+" 	Assert "reti#sort" =~ regex
+" 	Assert "<SNR>11_sort" =~ regex
 " 	Assert "s:sort" =~ regex
 " 	Assert "s:aaa" =~ '^[a-zA-Z0-9#_:]\+$'
 endfunction
@@ -228,6 +228,17 @@ endfunction
 
 
 
+function! s:test_lambda_cache()
+	Assert reti#lambda("+") is reti#lambda("+")
+	Assert reti#lambda("+") isnot reti#lambda("-")
+	Assert reti#lambda("a:1+a:2") is reti#lambda("+")
+	Assert reti#lambda("a:1 + a:2") isnot reti#lambda("+")
+	Assert reti#lambda("+", l:) is reti#lambda("+")
+	Assert reti#lambda("n", l:) isnot reti#lambda("n", l:)
+endfunction
+
+
+
 function! g:test_lambda_all()
 	call s:test_eval()
 	call s:test_execute()
@@ -245,6 +256,7 @@ function! g:test_lambda_all()
 	call s:test_foldl1()
 	call s:test_foldr1()
 	call s:test_map()
+	call s:test_lambda_cache()
 endfunction
 " call g:test_lambda_all()
 

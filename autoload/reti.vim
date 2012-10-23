@@ -10,6 +10,7 @@ endfunction
 
 let s:lambda_counter = 0
 let s:lambda_capture = {}
+let s:lambda_cache = {}
 
 
 function! s:capture(l, captures)
@@ -21,6 +22,9 @@ endfunction
 
 
 function! reti#execute(expr, ...)
+	if has_key(s:lambda_cache, a:expr) && !a:0
+		return s:lambda_cache[a:expr]
+	endif
 	let name = "s:lambda_".s:lambda_counter
 	let s:lambda_capture[name] = a:000
 	execute join([
@@ -33,7 +37,12 @@ function! reti#execute(expr, ...)
 \		"endfunction",
 \	], "\n")
 	let s:lambda_counter += 1
-	return function(substitute(name, "s:", "<SNR>" . s:SID() . "_", "g"))
+	if a:0
+		return function(substitute(name, "s:", "<SNR>" . s:SID() . "_", "g"))
+	else
+		let s:lambda_cache[a:expr] = function(substitute(name, "s:", "<SNR>" . s:SID() . "_", "g"))
+		return s:lambda_cache[a:expr]
+	endif
 endfunction
 
 
@@ -99,7 +108,7 @@ endfunction
 
 
 function! reti#operator(op)
-	return reti#lambda("a:1 ". a:op ."a:2")
+	return reti#lambda("a:1". a:op ."a:2")
 endfunction
 
 
