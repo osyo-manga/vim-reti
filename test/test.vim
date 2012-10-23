@@ -63,11 +63,11 @@ function! s:test_operator()
 	Assert !reti#operator("&&")(1, 0)
 	Assert  reti#operator("||")(1, 0)
 	Assert !reti#operator("||")(0, 0)
-	Assert  reti#operator("+1")(2) == 3
+" 	Assert  reti#operator("+1")(2) == 3
 	Assert  reti#operator("=~")('homu', 'ho.*')
 	Assert !reti#operator("=~")('mado', 'ho.*')
-	Assert  reti#operator("=~'ho.*'")('homu')
-	Assert !reti#operator("=~'ho.*'")('mado')
+" 	Assert  reti#operator("=~'ho.*'")('homu')
+" 	Assert !reti#operator("=~'ho.*'")('mado')
 	Assert  reti#lambda("+")(1, 2) == 3
 	Assert !reti#lambda("==")(1, 2)
 	Assert  reti#lambda("!=")(1, 2)
@@ -76,12 +76,12 @@ function! s:test_operator()
 	Assert !reti#lambda("&&")(1, 0)
 	Assert  reti#lambda("||")(1, 0)
 	Assert !reti#lambda("||")(0, 0)
-	Assert  reti#lambda("+1")(2) == 3
-	Assert  reti#lambda("-1")(2) == 1
+" 	Assert  reti#lambda("+1")(2) == 3
+" 	Assert  reti#lambda("-1")(2) == 1
 	Assert  reti#lambda("=~")('homu', 'ho.*')
 	Assert !reti#lambda("=~")('mado', 'ho.*')
-	Assert  reti#lambda("=~'ho.*'")('homu')
-	Assert !reti#lambda("=~'ho.*'")('mado')
+" 	Assert  reti#lambda("=~'ho.*'")('homu')
+" 	Assert !reti#lambda("=~'ho.*'")('mado')
 endfunction
 
 

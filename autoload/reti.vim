@@ -76,70 +76,71 @@ function! reti#script(expr)
 endfunction
 
 
-" let s:operator_list = [
-" \	"+", "-", "*", "/", "%", ".",
-" \	"==", "==#", "==?",
-" \	"!=", "!=#", "!=?",
-" \	">",  ">#",  ">?",
-" \	">=", ">=#", ">=?",
-" \	"<",  "<#",  "<?",
-" \	"<=", "<=#", "<=?",
-" \	"=~", "=~#", "=~?",
-" \	"!~", "!~#", "!~?",
-" \	"is", "is#", "is?",
-" \	"isnot", "isnot#", "isnot?",
-" \	"||", "&&",
-" \]
-
 let s:operator_list = [
-\   '^\s*\(+\)\(.*\)',
-\   '^\s*\(-\)\(.*\)',
-\   '^\s*\(*\)\(.*\)',
-\   '^\s*\(/\)\(.*\)',
-\   '^\s*\(%\)\(.*\)',
-\   '^\s*\(\.\)\(.*\)',
-\   '^\s*\(==#\)\(.*\)',
-\   '^\s*\(==?\)\(.*\)',
-\   '^\s*\(==\)\(.*\)',
-\   '^\s*\(!=#\)\(.*\)',
-\   '^\s*\(!=?\)\(.*\)',
-\   '^\s*\(!=\)\(.*\)',
-\   '^\s*\(>=#\)\(.*\)',
-\   '^\s*\(>=?\)\(.*\)',
-\   '^\s*\(>=\)\(.*\)',
-\   '^\s*\(>#\)\(.*\)',
-\   '^\s*\(>?\)\(.*\)',
-\   '^\s*\(>\)\(.*\)',
-\   '^\s*\(<\)\(.*\)',
-\   '^\s*\(<#\)\(.*\)',
-\   '^\s*\(<?\)\(.*\)',
-\   '^\s*\(<=\)\(.*\)',
-\   '^\s*\(<=#\)\(.*\)',
-\   '^\s*\(<=?\)\(.*\)',
-\   '^\s*\(=\~#\)\(.*\)',
-\   '^\s*\(=\~?\)\(.*\)',
-\   '^\s*\(=\~\)\(.*\)',
-\   '^\s*\(\!\~\)\(.*\)',
-\   '^\s*\(\!\~#\)\(.*\)',
-\   '^\s*\(\!\~?\)\(.*\)',
-\   '^\s*\(is#\)\(.*\)',
-\   '^\s*\(is?\)\(.*\)',
-\   '^\s*\(is\)\(.*\)',
-\   '^\s*\(isnot#\)\(.*\)',
-\   '^\s*\(isnot?\)\(.*\)',
-\   '^\s*\(isnot\)\(.*\)',
-\   '^\s*\(||\)\(.*\)',
-\   '^\s*\(&&\)\(.*\)'
+\	"+", "-", "*", "/", "%", ".",
+\	"==", "==#", "==?",
+\	"!=", "!=#", "!=?",
+\	">",  ">#",  ">?",
+\	">=", ">=#", ">=?",
+\	"<",  "<#",  "<?",
+\	"<=", "<=#", "<=?",
+\	"=~", "=~#", "=~?",
+\	"!~", "!~#", "!~?",
+\	"is", "is#", "is?",
+\	"isnot", "isnot#", "isnot?",
+\	"||", "&&",
 \]
+
+" let s:operator_list = [
+" \   '^\s*\(+\)\(.*\)',
+" \   '^\s*\(-\)\(.*\)',
+" \   '^\s*\(*\)\(.*\)',
+" \   '^\s*\(/\)\(.*\)',
+" \   '^\s*\(%\)\(.*\)',
+" \   '^\s*\(\.\)\(.*\)',
+" \   '^\s*\(==#\)\(.*\)',
+" \   '^\s*\(==?\)\(.*\)',
+" \   '^\s*\(==\)\(.*\)',
+" \   '^\s*\(!=#\)\(.*\)',
+" \   '^\s*\(!=?\)\(.*\)',
+" \   '^\s*\(!=\)\(.*\)',
+" \   '^\s*\(>=#\)\(.*\)',
+" \   '^\s*\(>=?\)\(.*\)',
+" \   '^\s*\(>=\)\(.*\)',
+" \   '^\s*\(>#\)\(.*\)',
+" \   '^\s*\(>?\)\(.*\)',
+" \   '^\s*\(>\)\(.*\)',
+" \   '^\s*\(<\)\(.*\)',
+" \   '^\s*\(<#\)\(.*\)',
+" \   '^\s*\(<?\)\(.*\)',
+" \   '^\s*\(<=\)\(.*\)',
+" \   '^\s*\(<=#\)\(.*\)',
+" \   '^\s*\(<=?\)\(.*\)',
+" \   '^\s*\(=\~#\)\(.*\)',
+" \   '^\s*\(=\~?\)\(.*\)',
+" \   '^\s*\(=\~\)\(.*\)',
+" \   '^\s*\(\!\~\)\(.*\)',
+" \   '^\s*\(\!\~#\)\(.*\)',
+" \   '^\s*\(\!\~?\)\(.*\)',
+" \   '^\s*\(is#\)\(.*\)',
+" \   '^\s*\(is?\)\(.*\)',
+" \   '^\s*\(is\)\(.*\)',
+" \   '^\s*\(isnot#\)\(.*\)',
+" \   '^\s*\(isnot?\)\(.*\)',
+" \   '^\s*\(isnot\)\(.*\)',
+" \   '^\s*\(||\)\(.*\)',
+" \   '^\s*\(&&\)\(.*\)'
+" \]
 
 
 function! s:is_operator(str)
-	for op in reverse(s:operator_list)
-		if a:str =~ op
-			return 1
-		endif
-	endfor
-	return 0
+" 	for op in reverse(s:operator_list)
+" 		if a:str =~ op
+" 			return 1
+" 		endif
+" 	endfor
+" 	return 0
+	return index(s:operator_list, a:str) != -1
 endfunction
 
 function! s:test_is_operator()
@@ -156,29 +157,37 @@ function! s:test_is_operator()
 	Assert  s:is_operator("++")
 	Assert  s:is_operator("+homu")
 	Assert !s:is_operator("homu+homu")
+	Assert !s:is_operator("is")
 endfunction
 
 
-function! s:to_operator_expr(str)
-	let regex = '\([+-/*%.=~!?|&#<>\(is\)\(isnot\)]\+\)\(.*\)'
-	return substitute(a:str, regex, '\=empty(submatch(2)) ? "a:1".submatch(1)."a:2" : "a:1".submatch(1).submatch(2)', "g")
+function! s:to_operator(str)
+	let regex = '\(\a\|\d\|_\|""\|''*\)\([+-/*%.=~!?|&#<>]\+\)\(.*\)'
+	return substitute(a:str, regex, '\=(empty(submatch(1)) && empty(submatch(3)) ? ("a:1".submatch(2)."a:2") : ((empty(submatch(1)) ? "a:1" : submatch(1)) . submatch(2) . (empty(submatch(3)) ? "a:1" : submatch(3)))) ', "g")
 endfunction
 
-function! s:test_to_operator_expr()
-	Assert s:to_operator_expr("+1") == "a:1+1"
-	Assert s:to_operator_expr("+'homu'") == "a:1+'homu'"
-	Assert s:to_operator_expr("+") == "a:1+a:2"
-	Assert s:to_operator_expr("=~") == "a:1=~a:2"
-	Assert s:to_operator_expr("isnot") == "a:1isnota:2"
-	Assert s:to_operator_expr("isnot#") == "a:1isnot#a:2"
-	Assert s:to_operator_expr("isnot?") == "a:1isnot?a:2"
-	Assert s:to_operator_expr("isnot'is'") == "a:1isnot'is'"
-	Assert s:to_operator_expr("isnot is") == "a:1isnot is"
+function! s:test_to_operator()
+	Assert s:to_operator("+1") == "a:1+1"
+	Assert s:to_operator("1+") == "1+a:1"
+	Assert s:to_operator("1/") == "1/a:1"
+	Assert s:to_operator("+'homu'") == "a:1+'homu'"
+	Assert s:to_operator("+") == "a:1+a:2"
+	Assert s:to_operator("=~") == "a:1=~a:2"
+	Assert s:to_operator("42!=") == "42!=a:1"
+	Assert s:to_operator("'homu'=~") == "'homu'=~a:1"
+	Assert s:to_operator("homu=~") == "homu=~a:1"
+	Assert s:to_operator("homu_mado=~") == "homu_mado=~a:1"
+" 	Assert s:to_operator("isnot") == "a:1 isnot a:2"
+" 	Assert s:to_operator("isnot#") == "a:1 isnot# a:2"
+" 	Assert s:to_operator("isnot?") == "a:1 isnot? a:2"
+" 	Assert s:to_operator("isnot'is'") == "a:1 isnot 'is'"
+" 	Assert s:to_operator("isnot is") == "a:1 isnot is"
 endfunction
 
 
 function! reti#operator(op)
-	return reti#eval(s:to_operator_expr(a:op))
+" 	return reti#eval(s:to_operator_expr(a:op))
+	return reti#eval("a:1".a:op."a:2")
 endfunction
 
 
