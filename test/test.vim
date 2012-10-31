@@ -18,6 +18,8 @@ function! s:test_eval()
 	let n = 2
 	Assert reti#eval("n + a:1", l:)(1) == 3
 	Assert reti#eval("n + n2", l:, { "n2" : 1 })() == 3
+	Assert reti#eval("s:plus(1, 2)")() == 3
+	Assert reti#lambda("s:plus(1, 2)")() == 3
 endfunction
 
 
@@ -50,6 +52,10 @@ endfunction
 function! s:test_script()
 	let result = reti#script("s:plus")(1, 2)
 	Assert result == 3
+" 	let result = _("s:plus")(1, 2)
+" 	Assert result == 3
+" 	let result = reti#lambda(["s:plus"])(1, 2)
+" 	Assert result == 3
 endfunction
 
 
@@ -96,8 +102,9 @@ endfunction
 
 
 function! s:test_function()
-	Assert  reti#function("sort") == function("sort")
-	Assert  reti#function("s:test_function") == function("s:test_function")
+	Assert reti#function("sort") == function("sort")
+" 	echo reti#function("s:test_function") == function("s:test_function")
+" 	Assert  reti#function("s:test_function") == function("s:test_function")
 	Assert  reti#function("s:plus")(1, 2) == 3
 	Assert  reti#function("reti#lambda") == function("reti#lambda")
 	Assert  reti#function("vimproc#system") == function("vimproc#system")
@@ -105,9 +112,10 @@ function! s:test_function()
 	Assert !reti#function("a:1 + a:2")
 	Assert !reti#function("sort(a:1)")
 	Assert  reti#lambda("s:plus")(1, 2) == 3
+	Assert  reti#lambda(["s:plus"])(1, 2) == 3
 
-	let Plus = _("+")
-	Assert Plus(1, 2) == 3
+" 	let Plus = _("+")
+" 	Assert Plus(1, 2) == 3
 
 " 	let regex = '^[a-zA-Z0-9#_:<>]\+$'
 " 	Assert "aaaa" =~ regex
@@ -160,7 +168,10 @@ function! s:test_lambda()
 
 	Assert reti#lambda("sort(a:1)")([3, 2, 1]) == [1, 2, 3]
 
-	Assert reti#lambda("s:plus")(3, 2) == 5
+" 	Assert reti#lambda("s:plus")(3, 2) == 5
+" 	Assert reti#lambda("s:plus(3, 2)") == 5
+	Assert reti#lambda("s:plus(3, a:1)")(2) == 5
+	Assert reti#lambda("s:plus(a:1, a:1)")(2) == 4
 endfunction
 
 
@@ -247,7 +258,6 @@ function! s:test_foldr1()
 endfunction
 
 
-
 function! s:test_lambda_cache()
 	Assert reti#lambda("+") is reti#lambda("+")
 	Assert reti#lambda("+") isnot reti#lambda("-")
@@ -257,6 +267,22 @@ function! s:test_lambda_cache()
 	Assert reti#lambda("n", l:) isnot reti#lambda("n", l:)
 endfunction
 
+
+function! s:test_dict_func()
+	let dict = {}
+	function! dict.apply()
+		return "homu"
+	endfunction
+
+	Assert reti#dict_func(dict)() == "homu"
+	Assert reti#lambda(dict)() == "homu"
+
+	function! dict.func2(...)
+		return a:1
+	endfunction
+	Assert reti#dict_func(dict, "func2")("saya") == "saya"
+endfunction
+call s:test_dict_func()
 
 
 function! g:test_lambda_all()
@@ -277,8 +303,8 @@ function! g:test_lambda_all()
 	call s:test_foldr1()
 	call s:test_map()
 	call s:test_lambda_cache()
+	call s:test_dict_func()
 endfunction
 " call g:test_lambda_all()
-
 
 

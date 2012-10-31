@@ -15,7 +15,7 @@ let s:lambda_cache = {}
 
 function! s:capture(l, captures)
 	for list in a:captures
-		call extend(a:l, list)
+		call extend(a:l.local, list)
 	endfor
 endfunction
 
@@ -29,7 +29,7 @@ function! reti#execute(expr, ...)
 	let s:lambda_capture[name] = a:000
 	execute join([
 \		"function! ".name."(...)",
-\			"call s:capture(l:, s:lambda_capture[".string(name)."])",
+\			"call s:capture({ 'local' : l: }, s:lambda_capture[".string(name)."])",
 \			"execute ".string(a:expr),
 \			"if len(s:lambda_capture[".string(name)."]) == 1",
 \			"	call extend(s:lambda_capture[".string(name)."][0], l:)",
@@ -45,9 +45,9 @@ function! reti#execute(expr, ...)
 	endif
 endfunction
 
-
 function! reti#eval(expr, ...)
-	return call(function("reti#execute"), ["return ".a:expr] + a:000)
+	let expr = chained#script_function_to_function_symbol(a:expr, chained#to_SNR(chained#latest_called_script_function()))
+	return call(function("reti#execute"), ["return ".expr] + a:000)
 endfunction
 
 
@@ -56,6 +56,7 @@ function! s:SCaller(...)
 		throw 'abc'
 	catch /^abc$/
 		if a:0
+" 			echo reverse(split(v:throwpoint, '\.\.')[ : -2])
 			let prefunc = a:1
 			let result = matchstr(v:throwpoint, '^.*\.\.\zs.*\ze\.\.'.prefunc)
 			if empty(result)
@@ -68,11 +69,13 @@ function! s:SCaller(...)
 	endtry
 endfunction
 
+function! s:to_script_function(name, prev)
+	return substitute(a:name, "s:", matchstr(s:SCaller(a:prev), '\zs<SNR>\d*_\ze.*'), "g")
+endfunction
+
 
 function! reti#script(expr)
-	let SID = matchstr(s:SCaller("reti#script"), '\zs<SNR>\d*_\ze.*')
-	let expr = substitute(a:expr, "s:", SID, "g")
-	return function(expr)
+	return function(s:to_script_function(a:expr, "reti#script"))
 endfunction
 
 
@@ -204,8 +207,7 @@ function! reti#function(name, ...)
 		if type(a:name) == type(function("tr"))
 			return a:name
 		endif
-		let SID = matchstr(s:SCaller(prev), '\zs<SNR>\d*_\ze.*')
-		let name = substitute(a:name, "s:", SID, "g")
+		let name = chained#to_function_symbol(a:name, chained#to_SID(chained#latest_called_script_function()))
 		return name =~ '^[a-zA-Z0-9#_:<>]\+$' && exists("*".name) ? function(name) : 0
 	catch
 		return 0
@@ -219,6 +221,7 @@ function! reti#lambda(expr, ...)
 	endif
 	let Func = a:0 ? 0 : reti#function(a:expr, "reti#lambda")
 	return type(Func) == type(function("tr")) ? Func
+\		 : type(a:expr) == type({}) ? reti#dict_func(a:expr)
 \		 : type(a:expr) == type([]) && len(a:expr) == 1 ? call(function("reti#lambda"), a:expr + a:000)
 \		 : type(a:expr) == type([]) ? call(function("reti#compose"), a:expr)
 \		 : s:is_operator(a:expr) ? reti#operator(a:expr)
@@ -228,6 +231,14 @@ endfunction
 
 function! reti#curry(func)
 	return reti#lambda('reti#lambda("call('.string(a:func).', [".string(a:1)."] + a:000)")')
+endfunction
+
+
+function! reti#dict_func(dict, ...)
+	let method = get(a:, 1, "apply")
+" 	return reti#eval("self.".method."()", {"self" : a:dict})
+" 	return reti#eval("call(self.apply, [], self)", {"self" : a:dict})
+	return reti#eval("call(self.".method.", a:000, self)", {"self" : a:dict})
 endfunction
 
 
