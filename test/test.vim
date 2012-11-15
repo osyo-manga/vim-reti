@@ -9,6 +9,11 @@ function! E(...)
 endfunction
 
 
+function! s:plus(a, b)
+	return a:a + a:b
+endfunction
+
+
 function! s:test_eval()
 	Assert reti#eval("1 + 2")() == 3
 	Assert reti#eval("a:1 + a:2")(1, 2) == 3
@@ -42,11 +47,8 @@ function! s:test_execute()
 	unlet s:x
 
 	call E("Assert 1")()
-endfunction
 
-
-function! s:plus(a, b)
-	return a:a + a:b
+	call reti#execute("Assert s:plus(2, -1)")()
 endfunction
 
 function! s:test_script()
@@ -282,7 +284,6 @@ function! s:test_dict_func()
 	endfunction
 	Assert reti#dict_func(dict, "func2")("saya") == "saya"
 endfunction
-call s:test_dict_func()
 
 
 function! g:test_lambda_all()

@@ -22,15 +22,16 @@ endfunction
 
 
 function! reti#execute(expr, ...)
-	if has_key(s:lambda_cache, a:expr) && !a:0
-		return s:lambda_cache[a:expr]
+	let expr = chained#script_function_to_function_symbol(a:expr, chained#to_SNR(chained#latest_called_script_function()))
+	if has_key(s:lambda_cache, expr) && !a:0
+		return s:lambda_cache[expr]
 	endif
 	let name = "s:lambda_".s:lambda_counter
 	let s:lambda_capture[name] = a:000
 	execute join([
 \		"function! ".name."(...)",
 \			"call s:capture({ 'local' : l: }, s:lambda_capture[".string(name)."])",
-\			"execute ".string(a:expr),
+\			"execute ".string(expr),
 \			"if len(s:lambda_capture[".string(name)."]) == 1",
 \			"	call extend(s:lambda_capture[".string(name)."][0], l:)",
 \			"endif",
@@ -40,14 +41,13 @@ function! reti#execute(expr, ...)
 	if a:0
 		return function(substitute(name, "s:", "<SNR>" . s:SID() . "_", "g"))
 	else
-		let s:lambda_cache[a:expr] = function(substitute(name, "s:", "<SNR>" . s:SID() . "_", "g"))
-		return s:lambda_cache[a:expr]
+		let s:lambda_cache[expr] = function(substitute(name, "s:", "<SNR>" . s:SID() . "_", "g"))
+		return s:lambda_cache[expr]
 	endif
 endfunction
 
 function! reti#eval(expr, ...)
-	let expr = chained#script_function_to_function_symbol(a:expr, chained#to_SNR(chained#latest_called_script_function()))
-	return call(function("reti#execute"), ["return ".expr] + a:000)
+	return call(function("reti#execute"), ["return ".a:expr] + a:000)
 endfunction
 
 
