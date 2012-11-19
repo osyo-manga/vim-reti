@@ -31,10 +31,13 @@ function! reti#execute(expr, ...)
 	execute join([
 \		"function! ".name."(...)",
 \			"call s:capture({ 'local' : l: }, s:lambda_capture[".string(name)."])",
-\			"execute ".string(expr),
-\			"if len(s:lambda_capture[".string(name)."]) == 1",
-\			"	call extend(s:lambda_capture[".string(name)."][0], l:)",
-\			"endif",
+\			"try",
+\			"	execute ".string(expr),
+\			"finally",
+\			"	if len(s:lambda_capture[".string(name)."]) == 1",
+\			"		call extend(s:lambda_capture[".string(name)."][0], l:)",
+\			"	endif",
+\			"endtry",
 \		"endfunction",
 \	], "\n")
 	let s:lambda_counter += 1

@@ -49,6 +49,10 @@ function! s:test_execute()
 	call E("Assert 1")()
 
 	call reti#execute("Assert s:plus(2, -1)")()
+
+	let n = 0
+	Assert reti#execute("let n += 1 | return n", l:)() == 1
+	Assert n == 1
 endfunction
 
 function! s:test_script()
