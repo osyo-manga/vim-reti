@@ -181,6 +181,8 @@ function! s:test_lambda()
 " 	Assert reti#lambda("s:plus(3, 2)") == 5
 	Assert reti#lambda("s:plus(3, a:1)")(2) == 5
 	Assert reti#lambda("s:plus(a:1, a:1)")(2) == 4
+
+	Assert reti#lambda(":return a:1")(2) == 2
 endfunction
 
 

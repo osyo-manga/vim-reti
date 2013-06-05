@@ -187,6 +187,7 @@ function! reti#lambda(expr, ...)
 \		 : type(a:expr) == type([]) && len(a:expr) == 1 ? call(function("reti#lambda"), a:expr + a:000)
 \		 : type(a:expr) == type([]) ? call(function("reti#compose"), a:expr)
 \		 : s:is_operator(a:expr) ? reti#operator(a:expr)
+\		 : type(a:expr) == type("") && a:expr[0] ==# ':' ? call(function("reti#execute"), [a:expr] + a:000)
 \		 : call(function("reti#eval"), [a:expr] + a:000)
 endfunction
 
