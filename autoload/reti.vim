@@ -140,30 +140,7 @@ let s:operator_list = [
 
 
 function! s:is_operator(str)
-" 	for op in reverse(s:operator_list)
-" 		if a:str =~ op
-" 			return 1
-" 		endif
-" 	endfor
-" 	return 0
 	return index(s:operator_list, a:str) != -1
-endfunction
-
-function! s:test_is_operator()
-	Assert  s:is_operator("+")
-	Assert  s:is_operator("==")
-	Assert  s:is_operator(".")
-	Assert !s:is_operator("$")
-	Assert !s:is_operator("#")
-	Assert  s:is_operator("!~")
-	Assert  s:is_operator("=~")
-	Assert !s:is_operator("i")
-	Assert !s:is_operator("homu")
-	Assert  s:is_operator("+1")
-	Assert  s:is_operator("++")
-	Assert  s:is_operator("+homu")
-	Assert !s:is_operator("homu+homu")
-	Assert !s:is_operator("is")
 endfunction
 
 
@@ -172,28 +149,10 @@ function! s:to_operator(str)
 	return substitute(a:str, regex, '\=(empty(submatch(1)) && empty(submatch(3)) ? ("a:1".submatch(2)."a:2") : ((empty(submatch(1)) ? "a:1" : submatch(1)) . submatch(2) . (empty(submatch(3)) ? "a:1" : submatch(3)))) ', "g")
 endfunction
 
-function! s:test_to_operator()
-	Assert s:to_operator("+1") == "a:1+1"
-	Assert s:to_operator("1+") == "1+a:1"
-	Assert s:to_operator("1/") == "1/a:1"
-	Assert s:to_operator("+'homu'") == "a:1+'homu'"
-	Assert s:to_operator("+") == "a:1+a:2"
-	Assert s:to_operator("=~") == "a:1=~a:2"
-	Assert s:to_operator("42!=") == "42!=a:1"
-	Assert s:to_operator("'homu'=~") == "'homu'=~a:1"
-	Assert s:to_operator("homu=~") == "homu=~a:1"
-	Assert s:to_operator("homu_mado=~") == "homu_mado=~a:1"
-" 	Assert s:to_operator("isnot") == "a:1 isnot a:2"
-" 	Assert s:to_operator("isnot#") == "a:1 isnot# a:2"
-" 	Assert s:to_operator("isnot?") == "a:1 isnot? a:2"
-" 	Assert s:to_operator("isnot'is'") == "a:1 isnot 'is'"
-" 	Assert s:to_operator("isnot is") == "a:1 isnot is"
-endfunction
-
 
 function! reti#operator(op)
 " 	return reti#eval(s:to_operator_expr(a:op))
-	return reti#eval("a:1".a:op."a:2")
+	return reti#eval("a:1 ".a:op." a:2")
 endfunction
 
 
@@ -292,15 +251,6 @@ function! s:default_constructor(type)
 \		 : a:type == type({})  ? {}
 \		 : a:type == type(0.0) ? 0.0
 \		 : -1
-endfunction
-
-function! s:test_default_constructor()
-	Assert s:default_constructor(type(12)) == 0
-	Assert s:default_constructor(type("homu")) == ""
-	Assert s:default_constructor(type(range(3))) == []
-	Assert s:default_constructor(type(range(3)[0])) == 0
-	Assert s:default_constructor(type({"homu" : 1})) == {}
-	Assert s:default_constructor(type(function("s:test_default_constructor"))) == -1
 endfunction
 
 

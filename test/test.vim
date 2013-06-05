@@ -1,4 +1,6 @@
 
+" command! -nargs=* Assert :OwlCheck <args>
+
 function! _(...)
 	return call(function("reti#lambda"), a:000)
 endfunction
@@ -92,6 +94,7 @@ function! s:test_operator()
 " 	Assert  reti#lambda("-1")(2) == 1
 	Assert  reti#lambda("=~")('homu', 'ho.*')
 	Assert !reti#lambda("=~")('mado', 'ho.*')
+	Assert  reti#lambda("is")(g:, g:)
 " 	Assert  reti#lambda("=~'ho.*'")('homu')
 " 	Assert !reti#lambda("=~'ho.*'")('mado')
 endfunction
@@ -267,8 +270,8 @@ endfunction
 function! s:test_lambda_cache()
 	Assert reti#lambda("+") is reti#lambda("+")
 	Assert reti#lambda("+") isnot reti#lambda("-")
-	Assert reti#lambda("a:1+a:2") is reti#lambda("+")
-	Assert reti#lambda("a:1 + a:2") isnot reti#lambda("+")
+	Assert reti#lambda("a:1 + a:2") is reti#lambda("+")
+	Assert reti#lambda("a:1+a:2") isnot reti#lambda("+")
 	Assert reti#lambda("+", l:) is reti#lambda("+")
 	Assert reti#lambda("n", l:) isnot reti#lambda("n", l:)
 endfunction
@@ -310,6 +313,6 @@ function! g:test_lambda_all()
 	call s:test_lambda_cache()
 	call s:test_dict_func()
 endfunction
-" call g:test_lambda_all()
+call g:test_lambda_all()
 
 
