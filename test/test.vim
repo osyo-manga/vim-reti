@@ -295,6 +295,14 @@ function! s:test_dict_func()
 endfunction
 
 
+function! s:test_self()
+	let Self = reti#lambda("Self")
+	Assert Self == Self()
+
+	Assert reti#lambda("a:1 == 1 ? a:1 : Self(a:1 - 1) + a:1")(4) == 10
+endfunction
+
+
 function! g:test_lambda_all()
 	call s:test_eval()
 	call s:test_execute()
@@ -314,6 +322,7 @@ function! g:test_lambda_all()
 	call s:test_map()
 	call s:test_lambda_cache()
 	call s:test_dict_func()
+	call s:test_self()
 endfunction
 call g:test_lambda_all()
 

@@ -27,9 +27,11 @@ function! reti#execute(expr, ...)
 		return s:lambda_cache[expr]
 	endif
 	let name = "s:lambda_".s:lambda_counter
+	let name = substitute(name, "s:", "<SNR>" . s:SID() . "_", "g")
 	let s:lambda_capture[name] = a:000
 	execute join([
 \		"function! ".name."(...)",
+\			"let Self = function(". string(name) .")",
 \			"call s:capture({ 'local' : l: }, s:lambda_capture[".string(name)."])",
 \			"try",
 \			"	execute ".string(expr),
@@ -42,9 +44,9 @@ function! reti#execute(expr, ...)
 \	], "\n")
 	let s:lambda_counter += 1
 	if a:0
-		return function(substitute(name, "s:", "<SNR>" . s:SID() . "_", "g"))
+		return function(name)
 	else
-		let s:lambda_cache[expr] = function(substitute(name, "s:", "<SNR>" . s:SID() . "_", "g"))
+		let s:lambda_cache[expr] = function(name)
 		return s:lambda_cache[expr]
 	endif
 endfunction
