@@ -39,14 +39,14 @@ endfunction
 call s:func()
 
 
-" 副作用がある処理は reti#execute を使用する
-let s:Func = reti#execute("echo a:1")
+" コマンドを呼び出す場合は先頭に : を付ける
+let s:Func = reti#lambda(":echo a:1")
 call s:Func("homu")
 " => "homu"
 
 " 代入
 let s:n = 2
-let s:Func = reti#execute("let n += a:1", s:)
+let s:Func = reti#lambda(":let n += a:1", s:)
 call s:Func(4)
 echo s:n
 " => 6
