@@ -1,0 +1,150 @@
+reti.txt		無名関数
+
+==============================================================================
+概要						*reti-introduction*
+
+*reti* は Vim script で無名関数を定義する為のプラグインです。
+式を記述した文字列から関数の参照を生成する事が出来ます。
+
+- Require
+ - "chained.vim" - https://github.com/osyo-manga/vim-chained
+
+
+==============================================================================
+使い方						*reti-usage*
+
+>
+	" 引数を2倍する
+	let Twice = reti#lambda("a:1 + a:1")
+	echo Twice(2)
+	" => 4
+
+	" ソートを行う
+	echo sort([3, 4, 1, 5, 2], reti#lambda("a:1 - a:2"))
+	" => [1, 2, 3, 4, 5]
+
+	" こういう書き方も出来る
+	" reti#lambda({op}) は二項演算子を関数参照にして返す
+	echo sort([3, 4, 1, 5, 2], reti#lambda("-"))
+	" => [1, 2, 3, 4, 5]
+
+	" スクリプトローカル変数をキャプチャする
+	let s:value = 10
+	let F = reti#lambda("value + a:1", s:)
+	echo F(10)
+	" 20
+
+	let s:value = 42
+	echo F(-10)
+	" 32
+<
+
+==============================================================================
+インターフェース				*reti-interface*
+
+------------------------------------------------------------------------------
+関数						*reti-functions*
+
+reti#execute({expr} [, {capture}])		*reti#execute()*
+	{expr} を |:execute| で評価する関数の参照を返します。
+	{expr} には文字列を渡します。
+	{expr} は |:execute| で評価できる文字列であればなんでも構いません。
+	また、{expr} 内では以下の変数は特別な意味を持ちます。
+	
+	"a:"	関数の引数 |function-argument| と同様にしよう出来ます
+	"Self"	自信の関数の参照です
+	
+	{capture} に辞書を渡すとその辞書をローカルな変数として使用する事が出来
+	ます。
+Example: >
+	call reti#execute("echo 'homu'")()
+	" => "homu"
+
+	call reti#execute("echo a:1 + a:2")(1, 2)
+	" => 3
+
+	" スクリプトローカルな変数を {expr} で使用したい場合
+	let s:value = 10
+	call reti#execute("echo value + a:1", s:)(2)
+	" => 12
+
+	" 代入も出来る
+	let s:value = 0
+	call reti#execute("let value = a:1", s:)(2)
+	echo s:value
+	" => 2
+<
+
+reti#eval({expr} [, {capture}])			*reti#eval()*
+	{expr} を評価した値を返す関数の参照を返します。
+Example >
+	echo reti#eval("'homu'")()
+	" => "homu"
+	
+	echo reti#eval("a:1 + a:2")(1, 2)
+	" => 3
+<
+
+reti#operator({op})				*reti#operator()*
+	二項演算子 {op} を関数にして返します。
+Exmaple: >
+	echo reti#operator("+")(1, 2)
+	" => 3
+	
+	echo reti#operator("==#")("homu", "mami")
+	" => 0
+<
+
+reti#function({funcname})			*reti#function()*
+	{funcname} の関数参照を返します。
+	|function()| と同等の機能です。
+	スクリプトローカル関数内であれば、そのスクリプトローカルの
+	関数を |<SID>| 付きで返します。
+Exmaple: >
+	function! Plus(a, b)
+		return a:a + a:b
+	endfunction
+	
+	echo reti#function("Plus")(1, 2)
+	" => 3
+	
+
+	function! s:minus(a, b)
+		return a:a - a:b
+	endfunction
+
+	" NG
+	" echo reti#function("s:minus")(1, 2)
+	
+	function! s:func()
+		" OK
+		echo reti#function("s:minus")
+		" => <SNR>xxx_minus
+
+		echo reti#function("s:minus")(1, 2)
+		" => -1
+	endfunction
+	call s:func()
+<
+
+reti#compose({F1}, {F2})			*reti#compose()*
+	{F1}({F2}()) を行う関数の参照を返します。
+Example: >
+	" reti#lambda("a:1 + a:1")(reti#lambda("-")(3, 1))
+	echo reti#compose(reti#lambda("a:1 + a:1"), reti#lambda("-"))(3, 1)
+	" => 4
+<
+
+reti#lambda({expr} [, {capture}])		*reti#lambda()*
+	{expr} を評価する関数の参照を返します。
+	{expr} の値に応じて各関数で評価した関数参照を返します。
+
+	"関数名"		：|reti#function()|
+	"リスト型"		：|reti#compose()|
+	"演算子"		：|reti#operator()|
+	": から始まる文字列"	：|reti#execute()|
+	"上記以外の文字列"	：|reti#eval()|
+
+
+==============================================================================
+vim:tw=78:fo=tcq2mM:ts=8:ft=help:norl
