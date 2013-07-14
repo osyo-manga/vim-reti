@@ -7,7 +7,7 @@ function! s:dict.count()
 	let self.value += 1
 endfunction
 
-let s:Count = reti#lambda("self.count()", { "self" : s:dict })
+let s:Count = reti#lambda(s:dict, "count")
 call s:Count()
 call s:Count()
 call s:Count()

@@ -185,7 +185,7 @@ function! reti#lambda(expr, ...)
 	endif
 	let Reti_lambda_func = a:0 ? 0 : reti#function(a:expr, "reti#lambda")
 	return type(Reti_lambda_func) == type(function("tr")) ? Reti_lambda_func
-\		 : type(a:expr) == type({}) ? reti#dict_func(a:expr)
+\		 : type(a:expr) == type({}) ? call("reti#dict_func", [a:expr] + a:000)
 \		 : type(a:expr) == type([]) && len(a:expr) == 1 ? call(function("reti#lambda"), a:expr + a:000)
 \		 : type(a:expr) == type([]) ? call(function("reti#compose"), a:expr)
 \		 : s:is_operator(a:expr) ? reti#operator(a:expr)

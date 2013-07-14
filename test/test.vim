@@ -292,6 +292,7 @@ function! s:test_dict_func()
 		return a:1
 	endfunction
 	Assert reti#dict_func(dict, "func2")("saya") == "saya"
+	Assert reti#lambda(dict, "func2")("saya") == "saya"
 endfunction
 
 
