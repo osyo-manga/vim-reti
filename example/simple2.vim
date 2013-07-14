@@ -7,7 +7,7 @@ function! s:main()
 	let Lines = reti#lambda('split(a:1, "\n")')
 	echo Lines("1\n2\n3\n")
 	
-	let PutStr = reti#execute("echo a:1")
+	let PutStr = reti#lambda(":echo a:1")
 	call PutStr("homu")
 	
 	let src = join([
