@@ -183,8 +183,8 @@ function! reti#lambda(expr, ...)
 	if type(a:expr) == type("") && has_key(s:lambda_cache, a:expr) && !a:0
 		return s:lambda_cache[a:expr]
 	endif
-	let Func = a:0 ? 0 : reti#function(a:expr, "reti#lambda")
-	return type(Func) == type(function("tr")) ? Func
+	let Reti_lambda_func = a:0 ? 0 : reti#function(a:expr, "reti#lambda")
+	return type(Reti_lambda_func) == type(function("tr")) ? Reti_lambda_func
 \		 : type(a:expr) == type({}) ? reti#dict_func(a:expr)
 \		 : type(a:expr) == type([]) && len(a:expr) == 1 ? call(function("reti#lambda"), a:expr + a:000)
 \		 : type(a:expr) == type([]) ? call(function("reti#compose"), a:expr)
@@ -221,10 +221,10 @@ endfunction
 
 
 function! reti#foldl(func, value, seq)
-	let Func = reti#lambda(a:func)
+	let Reti_foldl_func = reti#lambda(a:func)
 	let result = a:value
 	for n in a:seq
-		let result = Func(result, n)
+		let result = Reti_foldl_func(result, n)
 	endfor
 	return result
 endfunction
@@ -238,10 +238,10 @@ endfunction
 
 
 function! reti#foldr(func, value, seq)
-	let Func = reti#lambda(a:func)
+	let Reti_foldr_func = reti#lambda(a:func)
 	let result = a:value
 	for n in reverse(a:seq)
-		let result = Func(n, result)
+		let result = Reti_foldr_func(n, result)
 	endfor
 	return result
 endfunction
