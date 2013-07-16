@@ -26,18 +26,18 @@ function! reti#execute(expr, ...)
 	if has_key(s:lambda_cache, expr) && !a:0
 		return s:lambda_cache[expr]
 	endif
-	let name = "s:lambda_".s:lambda_counter
-	let name = substitute(name, "s:", "<SNR>" . s:SID() . "_", "g")
+	let name = "<SNR>" . s:SID() . "_lambda_".s:lambda_counter
+	let name_str = string(name)
 	let s:lambda_capture[name] = a:000
 	execute join([
 \		"function! ".name."(...)",
-\			"let Self = function(". string(name) .")",
-\			"call s:capture({ 'local' : l: }, s:lambda_capture[".string(name)."])",
+\			"let Self = function(". name_str .")",
+\			"call s:capture({ 'local' : l: }, s:lambda_capture[".name_str."])",
 \			"try",
-\			"	execute ".string(expr),
+\			"	" . expr,
 \			"finally",
-\			"	if len(s:lambda_capture[".string(name)."]) == 1",
-\			"		call extend(s:lambda_capture[".string(name)."][0], l:)",
+\			"	if len(s:lambda_capture[" . name_str . "]) == 1",
+\			"		call extend(s:lambda_capture[" . name_str . "][0], l:)",
 \			"	endif",
 \			"endtry",
 \		"endfunction",
