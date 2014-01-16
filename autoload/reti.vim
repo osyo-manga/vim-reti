@@ -166,7 +166,6 @@ endfunction
 
 
 function! reti#function(name, ...)
-	let prev = a:0 ? a:1 : "reti#function"
 	try
 		if type(a:name) == type(function("tr"))
 			return a:name
