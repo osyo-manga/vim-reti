@@ -10,7 +10,23 @@ endfunction
 
 
 
-let s:lambda_template = join(readfile(expand("<sfile>:p:h") . "/Reti/lambda_function_template.txt"), "\n")
+" let s:lambda_template = join(readfile(expand("<sfile>:p:h") . "/Reti/lambda_function_template.txt"), "\n")
+
+
+let s:lambda_template = join([
+\	"function! %s(...)",
+\	"	let Self = function('%s')",
+\	"	call s:_capture({ 'local' : l: }, s:lambda_capture['%s'])",
+\	"	try",
+\	"		%s",
+\	"	finally",
+\	"		if len(s:lambda_capture['%s']) == 1",
+\	"			call extend(s:lambda_capture['%s'][0], l:)",
+\	"		endif",
+\	"	endtry",
+\	"endfunction",
+\], "\n")
+
 
 function! s:_gen_lambda(name, expr)
 	return printf(s:lambda_template, a:name, a:name, a:name, a:expr, a:name, a:name)
