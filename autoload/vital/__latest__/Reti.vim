@@ -3,8 +3,17 @@ set cpo&vim
 scriptencoding utf-8
 
 
+
 function! s:_SID()
 	return matchstr(expand('<sfile>'), '<SNR>\zs\d\+\ze_SID$')
+endfunction
+
+
+
+let s:lambda_template = join(readfile(expand("<sfile>:p:h") . "/Reti/lambda_function_template.txt"), "\n")
+
+function! s:_gen_lambda(name, expr)
+	return printf(s:lambda_template, a:name, a:name, a:name, a:expr, a:name, a:name)
 endfunction
 
 
@@ -20,29 +29,17 @@ function! s:_capture(l, captures)
 endfunction
 
 
-
 function! s:execute(expr, ...)
 " 	let expr = chained#script_function_to_function_symbol(a:expr, chained#to_SNR(chained#latest_called_script_function()))
 	let expr = a:expr
 	if has_key(s:lambda_cache, expr) && !a:0
 		return s:lambda_cache[expr]
 	endif
+
 	let name = "<SNR>" . s:_SID() . "_lambda_".s:lambda_counter
-	let name_str = string(name)
 	let s:lambda_capture[name] = a:000
-	execute join([
-\		"function! ".name."(...)",
-\			"let Self = function(". name_str .")",
-\			"call s:_capture({ 'local' : l: }, s:lambda_capture[".name_str."])",
-\			"try",
-\			"	" . expr,
-\			"finally",
-\			"	if len(s:lambda_capture[" . name_str . "]) == 1",
-\			"		call extend(s:lambda_capture[" . name_str . "][0], l:)",
-\			"	endif",
-\			"endtry",
-\		"endfunction",
-\	], "\n")
+
+	execute s:_gen_lambda(name, expr)
 	let s:lambda_counter += 1
 	if a:0
 		return function(name)
