@@ -1,0 +1,13 @@
+function! %s(...)
+	let Self = function('%s')
+	if has_key(s:lambda_capture, '%s')
+		call s:capture({ 'local' : l: }, s:lambda_capture['%s'])
+	endif
+	try
+		%s
+	finally
+		if has_key(s:lambda_capture, '%s') && len(s:lambda_capture['%s']) == 1
+			call extend(s:lambda_capture['%s'][0], l:)
+		endif
+	endtry
+endfunction

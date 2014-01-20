@@ -8,9 +8,19 @@ function! s:SID()
 endfunction
 
 
+let s:lambda_template = join(readfile(expand("<sfile>:p:h") . "/reti/lambda_template.txt"), "\n")
+
+
+function! s:gen_lambda(name, expr)
+	return printf(s:lambda_template, a:name, a:name, a:name, a:name, a:expr, a:name, a:name, a:name)
+endfunction
+
+
+
 let s:lambda_counter = 0
 let s:lambda_capture = {}
 let s:lambda_cache = {}
+let s:lambda_expr_cache = {}
 
 
 function! s:capture(l, captures)
@@ -29,27 +39,17 @@ function! reti#execute(expr, ...)
 	let name = "<SNR>" . s:SID() . "_lambda_".s:lambda_counter
 	let name_str = string(name)
 	let s:lambda_capture[name] = a:000
-	execute join([
-\		"function! ".name."(...)",
-\			"let Self = function(". name_str .")",
-\			"call s:capture({ 'local' : l: }, s:lambda_capture[".name_str."])",
-\			"try",
-\			"	" . expr,
-\			"finally",
-\			"	if len(s:lambda_capture[" . name_str . "]) == 1",
-\			"		call extend(s:lambda_capture[" . name_str . "][0], l:)",
-\			"	endif",
-\			"endtry",
-\		"endfunction",
-\	], "\n")
+	execute s:gen_lambda(name, expr)
 	let s:lambda_counter += 1
 	if a:0
 		return function(name)
 	else
 		let s:lambda_cache[expr] = function(name)
+		let s:lambda_expr_cache[name] = expr
 		return s:lambda_cache[expr]
 	endif
 endfunction
+
 
 function! reti#eval(expr, ...)
 	return call(function("reti#execute"), ["return ".a:expr] + a:000)
@@ -277,6 +277,30 @@ function! reti#map(f, seq)
 endfunction
 
 
+function! reti#delete_lambda(f, ...)
+	let f = matchstr(string(a:f), 'function(''\zs.\{-}\ze'')')
+	if has_key(s:lambda_expr_cache, f)
+		unlet! s:lambda_cache[s:lambda_expr_cache[f]]
+		unlet! s:lambda_capture[f]
+		unlet! s:lambda_expr_cache[f]
+	endif
+	if get(a:, 1, 1)
+		execute printf("delfunction %s", f)
+	else
+		let name = matchstr(f, '<SNR>\zs.*')
+		let map = printf("<Plug>(reti-del-func%s)", name)
+		execute "nnoremap <silent>" map printf(":delfunction %s <bar> :nunmap %s<CR>", f, map)
+		call feedkeys(printf("\<Plug>(reti-del-func%s)", name))
+" 		call feedkeys(printf(":delfunction %s\<CR>", f), "n")
+	endif
+endfunction
+
+
+function! reti#once(f, ...)
+	let F = type(a:f) == type(function("tr")) ? a:f : call("reti#lambda", [a:f] + a:000)
+	let f = matchstr(string(F), 'function(''\zs.\{-}\ze'')')
+	return reti#execute(printf("let result = call('%s', a:000) | call reti#delete_lambda(function('%s')) | call reti#delete_lambda(Self, 0) | return result", f, f))
+endfunction
 
 
 
