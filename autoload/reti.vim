@@ -278,7 +278,7 @@ endfunction
 
 
 function! reti#delete_lambda(f, ...)
-	let f = matchstr(string(a:f), 'function(''\zs.\{-}\ze'')')
+	let f = reti#as_funcname(a:f)
 	if has_key(s:lambda_expr_cache, f)
 		unlet! s:lambda_cache[s:lambda_expr_cache[f]]
 		unlet! s:lambda_capture[f]
@@ -298,10 +298,20 @@ endfunction
 
 function! reti#once(f, ...)
 	let F = type(a:f) == type(function("tr")) ? a:f : call("reti#lambda", [a:f] + a:000)
-	let f = matchstr(string(F), 'function(''\zs.\{-}\ze'')')
+	let f = reti#as_funcname(F)
 	return reti#execute(printf("let result = call('%s', a:000) | call reti#delete_lambda(function('%s')) | call reti#delete_lambda(Self, 0) | return result", f, f))
 endfunction
 
+
+function! reti#as_funcname(f)
+	return matchstr(string(a:f), 'function(''\zs.\{-}\ze'')')
+endfunction
+
+
+function! reti#bind(f, ...)
+	let F = type(a:f) == type("") ? reti#lambda(a:f) : a:f
+	return reti#execute(printf("return call('%s', %s + a:000)", reti#as_funcname(F), string(a:000)))
+endfunction
 
 
 let cpo = s:save_cpo

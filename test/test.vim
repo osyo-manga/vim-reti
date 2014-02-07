@@ -304,6 +304,17 @@ function! s:test_self()
 endfunction
 
 
+function! s:test_as_funcname()
+	Assert reti#as_funcname(function("reti#lambda")) == "reti#lambda"
+endfunction
+
+
+function! s:test_bind()
+	Assert reti#bind("a:1 + a:2", 1)(-2) == -1
+	Assert reti#bind("a:1 + a:2", 1, 2)(-2) == 3
+endfunction
+
+
 function! g:test_lambda_all()
 	call s:test_eval()
 	call s:test_execute()
@@ -325,6 +336,6 @@ function! g:test_lambda_all()
 	call s:test_dict_func()
 	call s:test_self()
 endfunction
-call g:test_lambda_all()
+" call g:test_lambda_all()
 
 

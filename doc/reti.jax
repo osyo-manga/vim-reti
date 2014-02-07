@@ -145,6 +145,22 @@ reti#lambda({expr} [, {capture}])		*reti#lambda()*
 	": から始まる文字列"	：|reti#execute()|
 	"上記以外の文字列"	：|reti#eval()|
 
+reti#as_funcname({funcref})			*reti#as_name()*
+	関数参照 {funcref} の関数名を文字列で返します。
+Example: >
+	echo string(function("reti#lambda"))
+	" => "function('reti#lambda')"
+
+	echo reti#as_funcname(function("reti#lambda"))
+	" => "reti#lambda"
+<
+reti#bind({func}[, {args}...])			*reti#bind()*
+	{args} を束縛し、{func} を評価する関数の参照を返します。
+Example: >
+	echo reti#bind("a:1 + a:2", 1)(2)
+	" => 3
+<
+
 
 ==============================================================================
 vim:tw=78:fo=tcq2mM:ts=8:ft=help:norl
